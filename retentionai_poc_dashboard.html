@@ -1,0 +1,397 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0e14;--surface:#13171f;--card:#1a1f2a;--border:#252c3a;
+  --text:#e8eaf0;--muted:#6b7485;--accent:#4fffb0;--warn:#ff6b6b;--mid:#f59e0b;
+  --blue:#60a5fa;--purple:#a78bfa;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;line-height:1.6;min-height:600px;}
+.layout{display:grid;grid-template-columns:220px 1fr;height:100vh;min-height:600px}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:24px;overflow-y:auto}
+.logo{font-family:'Fraunces',serif;font-size:18px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
+.logo span{color:var(--accent)}
+.logo sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);display:block;font-weight:400;letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+.sidebar-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.customer-list{display:flex;flex-direction:column;gap:4px}
+.cust-item{padding:8px 10px;border-radius:6px;cursor:pointer;border:1px solid transparent;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center}
+.cust-item:hover{background:var(--card);border-color:var(--border)}
+.cust-item.active{background:var(--card);border-color:var(--accent);color:var(--accent)}
+.risk-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.risk-high{background:var(--warn)}
+.risk-med{background:var(--mid)}
+.risk-low{background:var(--accent)}
+.main{overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:20px}
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.cust-name{font-family:'Fraunces',serif;font-size:28px;font-weight:300;line-height:1.2}
+.cust-meta{color:var(--muted);font-size:11px;margin-top:4px}
+.risk-badge{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:500;letter-spacing:0.5px;border:1px solid}
+.badge-high{background:rgba(255,107,107,0.1);border-color:var(--warn);color:var(--warn)}
+.badge-med{background:rgba(245,158,11,0.1);border-color:var(--mid);color:var(--mid)}
+.badge-low{background:rgba(79,255,176,0.1);border-color:var(--accent);color:var(--accent)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.metric-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.metric-val{font-size:22px;font-weight:500;line-height:1}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.churn-ring-wrap{display:flex;align-items:center;gap:20px}
+.ring-container{position:relative;width:80px;height:80px;flex-shrink:0}
+.ring-svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:8}
+.ring-fg{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 0.8s ease}
+.ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:500;text-align:center}
+.section-title{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
+.email-box{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.7;color:#c0c4cf;font-style:italic;position:relative}
+.sentiment-bar-wrap{display:flex;align-items:center;gap:10px;margin-top:12px}
+.sentiment-bar-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.sentiment-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+.shap-wrap{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px}
+.shap-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.shap-feat{width:130px;font-size:11px;color:var(--muted);text-align:right;flex-shrink:0}
+.shap-bar-track{flex:1;height:12px;background:var(--border);border-radius:2px;position:relative}
+.shap-bar{height:100%;border-radius:2px;position:absolute;top:0;transition:width 0.7s ease,left 0.7s ease}
+.shap-val{width:50px;font-size:11px;text-align:right;flex-shrink:0}
+.shap-center{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--muted);opacity:0.4}
+.action-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{padding:9px 18px;border-radius:5px;border:1px solid;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:0.5px;transition:all 0.15s;background:transparent}
+.btn-primary{border-color:var(--accent);color:var(--accent)}
+.btn-primary:hover{background:rgba(79,255,176,0.08)}
+.btn-secondary{border-color:var(--border);color:var(--muted)}
+.btn-secondary:hover{background:var(--card);color:var(--text);border-color:var(--text)}
+.output-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.8;color:#c0c4cf;display:none}
+.output-box.visible{display:block}
+.typing{display:inline-block;width:4px;height:14px;background:var(--accent);vertical-align:middle;animation:blink 0.8s step-end infinite;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:0.5px}
+.tag-churn{background:rgba(255,107,107,0.12);color:var(--warn);border:1px solid rgba(255,107,107,0.25)}
+.tag-ok{background:rgba(79,255,176,0.08);color:var(--accent);border:1px solid rgba(79,255,176,0.2)}
+.divider{height:1px;background:var(--border)}
+.audio-row{display:flex;align-items:center;gap:12px;padding:12px 0 0}
+.audio-wave{display:flex;align-items:center;gap:3px;height:28px}
+.audio-bar{width:3px;border-radius:2px;background:var(--blue);animation:wave 1s ease-in-out infinite;display:none}
+.audio-bar.playing{display:block}
+@keyframes wave{0%,100%{height:6px}50%{height:22px}}
+.audio-bar:nth-child(2){animation-delay:0.15s}
+.audio-bar:nth-child(3){animation-delay:0.3s}
+.audio-bar:nth-child(4){animation-delay:0.45s}
+.audio-bar:nth-child(5){animation-delay:0.6s}
+.audio-time{font-size:11px;color:var(--muted)}
+</style>
+
+<h2 class="sr-only" style="position:absolute;left:-9999px">RetentionAI – Customer Churn Risk Dashboard</h2>
+
+<div class="layout">
+  <div class="sidebar">
+    <div>
+      <div class="logo">Retention<span>AI</span><sub>POC · v0.1</sub></div>
+    </div>
+    <div>
+      <div class="sidebar-label">Customers at Risk</div>
+      <div class="customer-list" id="custList"></div>
+    </div>
+    <div style="margin-top:auto;padding-top:16px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--muted);line-height:1.8">
+        <div style="display:flex;justify-content:space-between"><span>Model</span><span style="color:var(--text)">XGBoost</span></div>
+        <div style="display:flex;justify-content:space-between"><span>NLP</span><span style="color:var(--text)">DistilBERT</span></div>
+        <div style="display:flex;justify-content:space-between"><span>XAI</span><span style="color:var(--text)">SHAP</span></div>
+        <div style="display:flex;justify-content:space-between"><span>GenAI</span><span style="color:var(--text)">Gemini 2.5</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main" id="mainPanel">
+    <div class="header-row">
+      <div>
+        <div class="cust-name" id="custName">—</div>
+        <div class="cust-meta" id="custMeta">Select a customer to begin analysis</div>
+      </div>
+      <div id="riskBadge"></div>
+    </div>
+
+    <div class="grid3" id="metrics"></div>
+
+    <div class="divider"></div>
+
+    <div class="grid2">
+      <div>
+        <div class="section-title">Support email · verbatim</div>
+        <div class="email-box" id="emailBox">
+          <div style="color:var(--muted);font-style:normal">No customer selected.</div>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Churn probability</div>
+        <div class="metric-card" style="height:100%">
+          <div class="churn-ring-wrap" id="churnRingArea">
+            <div style="color:var(--muted);font-size:12px">Select a customer to view risk score.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">SHAP feature attribution — why this score?</div>
+      <div class="shap-wrap" id="shapWrap">
+        <div style="color:var(--muted);font-size:12px">Feature contributions will appear here.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div>
+      <div class="section-title">Actionable outreach</div>
+      <div class="action-btns" id="actionBtns">
+        <button class="btn btn-primary" onclick="generateEmail()">→ Generate save playbook email</button>
+        <button class="btn btn-secondary" onclick="generateAudio()">♪ Generate audio briefing</button>
+      </div>
+      <div class="output-box" id="emailOutput"></div>
+      <div class="output-box" id="audioOutput">
+        <div class="audio-row">
+          <button class="btn btn-secondary" id="playBtn" onclick="toggleAudio()" style="padding:6px 14px">▶ Play briefing</button>
+          <div class="audio-wave" id="audioWave">
+            <div class="audio-bar" id="b1"></div>
+            <div class="audio-bar" id="b2"></div>
+            <div class="audio-bar" id="b3"></div>
+            <div class="audio-bar" id="b4"></div>
+            <div class="audio-bar" id="b5"></div>
+          </div>
+          <div class="audio-time" id="audioTime">0:00</div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.8" id="audioScript"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const customers=[
+  {id:"C-0042",name:"Marcus T.",tenure:4,charges:89.99,contract:"Month-to-month",tickets:6,sentiment:-0.82,churnProb:0.91,email:"This is absolutely ridiculous — my connection has dropped FIVE times this week and every time I call I'm put on hold for 45 minutes. I've been charged twice for the same billing period. I'm done waiting for a fix. Cancel my account.",shap:[{feat:"EmailSentimentScore",val:0.38,dir:"pos"},{feat:"SupportTickets",val:0.29,dir:"pos"},{feat:"ContractType",val:0.22,dir:"pos"},{feat:"Tenure",val:0.07,dir:"pos"},{feat:"MonthlyCharges",val:0.03,dir:"neg"}]},
+  {id:"C-0117",name:"Priya N.",tenure:7,charges:74.50,contract:"Month-to-month",tickets:4,sentiment:-0.64,churnProb:0.73,email:"Hi, I've noticed my bill went up by $15 again with no explanation. I also had two outages last month. I'm starting to think about switching providers. Can someone please explain the charges?",shap:[{feat:"EmailSentimentScore",val:0.30,dir:"pos"},{feat:"ContractType",val:0.25,dir:"pos"},{feat:"SupportTickets",val:0.18,dir:"pos"},{feat:"MonthlyCharges",val:0.12,dir:"pos"},{feat:"Tenure",val:0.05,dir:"neg"}]},
+  {id:"C-0289",name:"James O.",tenure:22,charges:58.00,contract:"One year",tickets:2,sentiment:-0.31,churnProb:0.41,email:"Hello, just wanted to check when my contract renewal is due. Service has been mostly good but had a minor outage last Tuesday. Nothing urgent — just planning ahead.",shap:[{feat:"Tenure",val:0.28,dir:"neg"},{feat:"ContractType",val:0.22,dir:"neg"},{feat:"EmailSentimentScore",val:0.15,dir:"pos"},{feat:"SupportTickets",val:0.10,dir:"pos"},{feat:"MonthlyCharges",val:0.05,dir:"neg"}]},
+  {id:"C-0401",name:"Sofia L.",tenure:45,charges:49.99,contract:"Two year",tickets:1,sentiment:0.71,churnProb:0.08,email:"Hi team! Just wanted to say the speeds have been amazing lately. We upgraded our plan last quarter and the difference is night and day. Really happy with the service — keep it up!",shap:[{feat:"Tenure",val:0.35,dir:"neg"},{feat:"ContractType",val:0.30,dir:"neg"},{feat:"EmailSentimentScore",val:0.20,dir:"neg"},{feat:"SupportTickets",val:0.10,dir:"neg"},{feat:"MonthlyCharges",val:0.05,dir:"neg"}]},
+  {id:"C-0558",name:"Derek W.",tenure:3,charges:95.00,contract:"Month-to-month",tickets:7,sentiment:-0.88,churnProb:0.96,email:"I want to file a formal complaint. I've had ZERO working service for 3 days straight. Your tech said it would be fixed in 24 hours. That was 72 hours ago. You're still billing me full price. I'm contacting my bank.",shap:[{feat:"EmailSentimentScore",val:0.42,dir:"pos"},{feat:"SupportTickets",val:0.32,dir:"pos"},{feat:"Tenure",val:0.15,dir:"pos"},{feat:"ContractType",val:0.12,dir:"pos"},{feat:"MonthlyCharges",val:0.08,dir:"pos"}]},
+];
+
+let current=null;let audioPlaying=false;let audioTimer=null;let audioSec=0;
+
+function riskLevel(p){if(p>=0.75)return"high";if(p>=0.4)return"med";return"low";}
+function riskLabel(p){if(p>=0.75)return"CRITICAL RISK";if(p>=0.4)return"MODERATE RISK";return"LOW RISK";}
+function riskColor(p){if(p>=0.75)return"var(--warn)";if(p>=0.4)return"var(--mid)";return"var(--accent)";}
+
+function buildList(){
+  const el=document.getElementById("custList");
+  customers.forEach((c,i)=>{
+    const div=document.createElement("div");
+    div.className="cust-item";
+    div.id="ci"+i;
+    div.innerHTML=`<span>${c.id}</span><div class="risk-dot risk-${riskLevel(c.churnProb)}"></div>`;
+    div.onclick=()=>selectCustomer(i);
+    el.appendChild(div);
+  });
+}
+
+function selectCustomer(i){
+  document.querySelectorAll(".cust-item").forEach(e=>e.classList.remove("active"));
+  document.getElementById("ci"+i).classList.add("active");
+  current=customers[i];
+  render();
+}
+
+function render(){
+  const c=current;
+  document.getElementById("custName").textContent=c.name;
+  document.getElementById("custMeta").textContent=`${c.id} · Joined ${c.tenure} months ago`;
+
+  const rl=riskLevel(c.churnProb);
+  document.getElementById("riskBadge").innerHTML=`<div class="risk-badge badge-${rl}">${riskLabel(c.churnProb)}</div>`;
+
+  document.getElementById("metrics").innerHTML=`
+    <div class="metric-card"><div class="metric-label">Tenure</div><div class="metric-val">${c.tenure}<span style="font-size:13px;color:var(--muted)">mo</span></div><div class="metric-sub">Customer since ${2026-Math.round(c.tenure/12)} approx.</div></div>
+    <div class="metric-card"><div class="metric-label">Monthly charges</div><div class="metric-val">$${c.charges}</div><div class="metric-sub">${c.contract}</div></div>
+    <div class="metric-card"><div class="metric-label">Support tickets</div><div class="metric-val">${c.tickets}</div><div class="metric-sub">${c.tickets>4?"Above average":"Within normal range"}</div></div>
+  `;
+
+  const sentColor=c.sentiment<-0.5?"var(--warn)":c.sentiment<0?"var(--mid)":"var(--accent)";
+  const sentPct=Math.round((c.sentiment+1)/2*100);
+  document.getElementById("emailBox").innerHTML=`
+    <div style="font-size:11px;font-style:normal;margin-bottom:8px;display:flex;justify-content:space-between">
+      <span style="color:var(--muted)">Latest support email</span>
+      <span class="tag ${c.sentiment<0?"tag-churn":"tag-ok"}">${c.sentiment<-0.5?"Highly negative":c.sentiment<0?"Negative":"Positive"}</span>
+    </div>
+    <div>"${c.email}"</div>
+    <div class="sentiment-bar-wrap">
+      <span style="font-size:10px;color:var(--muted)">–1</span>
+      <div class="sentiment-bar-track"><div class="sentiment-bar-fill" style="width:${sentPct}%;background:${sentColor}"></div></div>
+      <span style="font-size:10px;color:var(--muted)">+1</span>
+      <span style="font-size:11px;color:${sentColor};min-width:36px;text-align:right">${c.sentiment.toFixed(2)}</span>
+    </div>
+  `;
+
+  const pct=Math.round(c.churnProb*100);
+  const circ=2*Math.PI*34;
+  const offset=circ*(1-c.churnProb);
+  const ringColor=riskColor(c.churnProb);
+  document.getElementById("churnRingArea").innerHTML=`
+    <div class="ring-container">
+      <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="34"/>
+        <circle class="ring-fg" cx="40" cy="40" r="34" stroke="${ringColor}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+      </svg>
+      <div class="ring-label" style="color:${ringColor}">${pct}%</div>
+    </div>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:${ringColor}">${pct}% churn probability</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.7">EmailSentimentScore: ${c.sentiment.toFixed(2)}<br>XGBoost + SHAP attribution</div>
+    </div>
+  `;
+
+  renderShap(c);
+  document.getElementById("emailOutput").classList.remove("visible");
+  document.getElementById("audioOutput").classList.remove("visible");
+  stopAudio();
+}
+
+function renderShap(c){
+  const wrap=document.getElementById("shapWrap");
+  const maxAbs=Math.max(...c.shap.map(s=>Math.abs(s.val)));
+  wrap.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:10px;color:var(--muted)">
+      <div style="width:130px;text-align:right">Feature</div>
+      <div style="flex:1;text-align:center">← Reduces risk &nbsp;&nbsp; Increases risk →</div>
+      <div style="width:50px;text-align:right">Impact</div>
+    </div>
+    ${c.shap.map(s=>{
+      const barW=Math.round((Math.abs(s.val)/maxAbs)*42);
+      const isPos=s.dir==="pos";
+      const color=isPos?"var(--warn)":"var(--accent)";
+      const left=isPos?50:(50-barW)+"%";
+      const barLeft=isPos?"50%":(50-barW)+"%";
+      return `<div class="shap-row">
+        <div class="shap-feat">${s.feat}</div>
+        <div class="shap-bar-track">
+          <div class="shap-center" style="left:50%"></div>
+          <div class="shap-bar" style="width:${barW}%;left:${isPos?50:50-barW}%;background:${color}"></div>
+        </div>
+        <div class="shap-val" style="color:${color}">${isPos?"+":"−"}${s.val.toFixed(2)}</div>
+      </div>`;
+    }).join("")}
+    <div style="font-size:10px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+      <span style="color:var(--warn)">■</span> increases churn risk &nbsp;&nbsp; <span style="color:var(--accent)">■</span> decreases churn risk
+    </div>
+  `;
+}
+
+const emailTemplates={
+  high:`Subject: We noticed something — and we want to make it right, ${"{name}"}.
+
+Hi ${"{name}"},
+
+We've been reviewing recent service interactions and want to reach out directly. We know your experience lately hasn't met the standard you deserve.
+
+We've identified the billing discrepancy on your account and are issuing a full credit for the affected period. A senior technician has also been assigned specifically to your area to resolve the connectivity issues.
+
+We'd like to offer you 3 months at 50% off — no conditions — as a direct acknowledgement that we fell short.
+
+Can we schedule a 10-minute call this week?
+
+Warmly,
+Customer Success Team`,
+  med:`Subject: A quick check-in on your account, ${"{name}"}
+
+Hi ${"{name}"},
+
+We noticed a recent billing question and wanted to follow up personally. Your concern is completely valid and we've applied an adjustment that you'll see on your next statement.
+
+We also want to make sure you're on the right plan for your usage. Based on your profile, you may benefit from switching to our Flex tier — same speed, $12 less per month.
+
+Happy to walk you through it if useful.
+
+Best,
+Account Management`,
+  low:`Subject: Your renewal is coming up — we've got something for you
+
+Hi ${"{name}"},
+
+Just a heads-up that your contract review period is approaching. As a valued long-term customer, we'd love to lock in your current rate for another year — plus add a free speed tier upgrade.
+
+No action needed today, just wanted to give you early notice.
+
+Thanks for being with us,
+Retention Team`
+};
+
+const audioScripts={
+  high:`Account briefing for ${"{name}"}, customer ${"{id}"}. Risk level: CRITICAL at 91% churn probability. Customer has logged 6 support tickets in the past 30 days, primarily billing disputes and repeated outages. Sentiment analysis of latest email scored negative 0.82. Recommended action: executive escalation, immediate credit issuance, and direct callback within 2 hours.`,
+  med:`Account briefing for ${"{name}"}, customer ${"{id}"}. Risk level: MODERATE at 73% churn probability. Customer flagged an unexplained billing increase and experienced two service outages last month. Sentiment score of negative 0.64. Recommended action: proactive outreach with billing clarification and optional plan downgrade to reduce churn pressure.`,
+  low:`Account briefing for ${"{name}"}, customer ${"{id}"}. Risk level: LOW at 8% churn probability. Long-tenured customer on a two-year contract with positive sentiment score of positive 0.71. No flags. Recommended action: standard retention touch at contract renewal with loyalty upgrade offer.`
+};
+
+function fill(tmpl,c){return tmpl.replace(/\$\{\"name\"\}/g,c.name.split(" ")[0]).replace(/\$\{\"id\"\}/g,c.id);}
+
+function generateEmail(){
+  if(!current)return;
+  const rl=riskLevel(current.churnProb);
+  const box=document.getElementById("emailOutput");
+  box.classList.add("visible");
+  const text=fill(emailTemplates[rl],current);
+  box.innerHTML="";
+  let i=0;
+  const cursor=document.createElement("span");
+  cursor.className="typing";
+  box.appendChild(cursor);
+  const iv=setInterval(()=>{
+    if(i<text.length){
+      cursor.before(text[i]==="↵"?document.createElement("br"):document.createTextNode(text[i]));
+      if(text[i]==="\n"){const br=document.createElement("br");cursor.before(br);}
+      i++;
+    } else {
+      clearInterval(iv);
+      cursor.remove();
+    }
+  },12);
+  box.innerHTML=`<pre style="white-space:pre-wrap;font-family:inherit;font-size:12px"></pre>`;
+  const pre=box.querySelector("pre");
+  let j=0;
+  const iv2=setInterval(()=>{
+    if(j<text.length){pre.textContent+=text[j];j++;}
+    else clearInterval(iv2);
+  },10);
+}
+
+function generateAudio(){
+  if(!current)return;
+  const rl=riskLevel(current.churnProb);
+  const box=document.getElementById("audioOutput");
+  box.classList.add("visible");
+  document.getElementById("audioScript").textContent=fill(audioScripts[rl],current);
+  document.getElementById("playBtn").textContent="▶ Play briefing";
+}
+
+function toggleAudio(){
+  if(!audioPlaying){
+    audioPlaying=true;
+    document.getElementById("playBtn").textContent="■ Stop";
+    document.querySelectorAll(".audio-bar").forEach(b=>b.classList.add("playing"));
+    audioSec=0;
+    audioTimer=setInterval(()=>{
+      audioSec++;
+      const m=Math.floor(audioSec/60);
+      const s=audioSec%60;
+      document.getElementById("audioTime").textContent=`${m}:${s.toString().padStart(2,"0")}`;
+      if(audioSec>=18)stopAudio();
+    },1000);
+  } else stopAudio();
+}
+
+function stopAudio(){
+  audioPlaying=false;
+  clearInterval(audioTimer);
+  document.getElementById("playBtn").textContent="▶ Play briefing";
+  document.querySelectorAll(".audio-bar").forEach(b=>b.classList.remove("playing"));
+}
+
+buildList();
+selectCustomer(0);
+</script>
